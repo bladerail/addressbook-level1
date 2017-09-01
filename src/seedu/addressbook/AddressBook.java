@@ -65,13 +65,13 @@ public class AddressBook {
      * at which java String.format(...) method can insert values.
      * =========================================================================
      */
-    private static final String MESSAGE_ADDED = "New person added: %1$s, Phone: %2$s, Email: %3$s";
+    private static final String MESSAGE_ADDED = "New person added: %1$s, Phone: %2$s, Email: %3$s, Date of Birth: %4$s";
     private static final String MESSAGE_ADDRESSBOOK_CLEARED = "Address book has been cleared!";
     private static final String MESSAGE_COMMAND_HELP = "%1$s: %2$s";
     private static final String MESSAGE_COMMAND_HELP_PARAMETERS = "\tParameters: %1$s";
     private static final String MESSAGE_COMMAND_HELP_EXAMPLE = "\tExample: %1$s";
     private static final String MESSAGE_DELETE_PERSON_SUCCESS = "Deleted Person: %1$s";
-    private static final String MESSAGE_DISPLAY_PERSON_DATA = "%1$s  Phone Number: %2$s  Email: %3$s";
+    private static final String MESSAGE_DISPLAY_PERSON_DATA = "%1$s  Phone Number: %2$s  Email: %3$s  Date of Birth: %4$s";
     private static final String MESSAGE_DISPLAY_LIST_ELEMENT_INDEX = "%1$d. ";
     private static final String MESSAGE_GOODBYE = "Exiting Address Book... Good bye!";
     private static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format: %1$s " + LS + "%2$s";
@@ -94,16 +94,19 @@ public class AddressBook {
     // These are the prefix strings to define the data type of a command parameter
     private static final String PERSON_DATA_PREFIX_PHONE = "p/";
     private static final String PERSON_DATA_PREFIX_EMAIL = "e/";
+    private static final String PERSON_DATA_PREFIX_DOB = "d/";
 
     private static final String PERSON_STRING_REPRESENTATION = "%1$s " // name
                                                             + PERSON_DATA_PREFIX_PHONE + "%2$s " // phone
-                                                            + PERSON_DATA_PREFIX_EMAIL + "%3$s"; // email
+                                                            + PERSON_DATA_PREFIX_EMAIL + "%3$s" // email
+                                                            + PERSON_DATA_PREFIX_DOB + "%4$s"; //DOB
     private static final String COMMAND_ADD_WORD = "add";
     private static final String COMMAND_ADD_DESC = "Adds a person to the address book.";
     private static final String COMMAND_ADD_PARAMETERS = "NAME "
                                                       + PERSON_DATA_PREFIX_PHONE + "PHONE_NUMBER "
-                                                      + PERSON_DATA_PREFIX_EMAIL + "EMAIL";
-    private static final String COMMAND_ADD_EXAMPLE = COMMAND_ADD_WORD + " John Doe p/98765432 e/johnd@gmail.com";
+                                                      + PERSON_DATA_PREFIX_EMAIL + "EMAIL "
+                                                        + PERSON_DATA_PREFIX_DOB + "Date of Birth";
+    private static final String COMMAND_ADD_EXAMPLE = COMMAND_ADD_WORD + " John Doe p/98765432 e/johnd@gmail.com d/20041995";
 
     private static final String COMMAND_FIND_WORD = "find";
     private static final String COMMAND_FIND_DESC = "Finds all persons whose names contain any of the specified "
@@ -144,11 +147,12 @@ public class AddressBook {
     private static final int PERSON_DATA_INDEX_NAME = 0;
     private static final int PERSON_DATA_INDEX_PHONE = 1;
     private static final int PERSON_DATA_INDEX_EMAIL = 2;
+    private static final int PERSON_DATA_INDEX_DOB = 3;
 
     /**
      * The number of data elements for a single person.
      */
-    private static final int PERSON_DATA_COUNT = 3;
+    private static final int PERSON_DATA_COUNT = 4;
 
     /**
      * Offset required to convert between 1-indexing and 0-indexing.COMMAND_
@@ -439,7 +443,7 @@ public class AddressBook {
      */
     private static String getMessageForSuccessfulAddPerson(String[] addedPerson) {
         return String.format(MESSAGE_ADDED,
-                getNameFromPerson(addedPerson), getPhoneFromPerson(addedPerson), getEmailFromPerson(addedPerson));
+                getNameFromPerson(addedPerson), getPhoneFromPerson(addedPerson), getEmailFromPerson(addedPerson), getDOBFromPerson(addedPerson));
     }
 
     /**
@@ -669,7 +673,7 @@ public class AddressBook {
      */
     private static String getMessageForFormattedPersonData(String[] person) {
         return String.format(MESSAGE_DISPLAY_PERSON_DATA,
-                getNameFromPerson(person), getPhoneFromPerson(person), getEmailFromPerson(person));
+                getNameFromPerson(person), getPhoneFromPerson(person), getEmailFromPerson(person), getDOBFromPerson(person));
     }
 
     /**
@@ -860,6 +864,10 @@ public class AddressBook {
         return person[PERSON_DATA_INDEX_EMAIL];
     }
 
+    private static String getDOBFromPerson(String[] person) {
+        return person[PERSON_DATA_INDEX_DOB];
+    }
+
     /**
      * Creates a person from the given data.
      *
@@ -868,11 +876,12 @@ public class AddressBook {
      * @param email without data prefix
      * @return constructed person
      */
-    private static String[] makePersonFromData(String name, String phone, String email) {
+    private static String[] makePersonFromData(String name, String phone, String email, String dob) {
         final String[] person = new String[PERSON_DATA_COUNT];
         person[PERSON_DATA_INDEX_NAME] = name;
         person[PERSON_DATA_INDEX_PHONE] = phone;
         person[PERSON_DATA_INDEX_EMAIL] = email;
+        person[PERSON_DATA_INDEX_DOB] = dob;
         return person;
     }
 
@@ -884,7 +893,7 @@ public class AddressBook {
      */
     private static String encodePersonToString(String[] person) {
         return String.format(PERSON_STRING_REPRESENTATION,
-                getNameFromPerson(person), getPhoneFromPerson(person), getEmailFromPerson(person));
+                getNameFromPerson(person), getPhoneFromPerson(person), getEmailFromPerson(person), getDOBFromPerson(person));
     }
 
     /**
@@ -923,9 +932,11 @@ public class AddressBook {
         final String[] decodedPerson = makePersonFromData(
                 extractNameFromPersonString(encoded),
                 extractPhoneFromPersonString(encoded),
-                extractEmailFromPersonString(encoded)
+                extractEmailFromPersonString(encoded),
+                extractDOBFromPersonString(encoded)
         );
         // check that the constructed person is valid
+
         return isPersonDataValid(decodedPerson) ? Optional.of(decodedPerson) : Optional.empty();
     }
 
@@ -955,12 +966,13 @@ public class AddressBook {
      * @param personData person string representation
      */
     private static boolean isPersonDataExtractableFrom(String personData) {
-        final String matchAnyPersonDataPrefix = PERSON_DATA_PREFIX_PHONE + '|' + PERSON_DATA_PREFIX_EMAIL;
+        final String matchAnyPersonDataPrefix = PERSON_DATA_PREFIX_PHONE + '|' + PERSON_DATA_PREFIX_EMAIL + '|' + PERSON_DATA_PREFIX_DOB;
         final String[] splitArgs = personData.trim().split(matchAnyPersonDataPrefix);
-        return splitArgs.length == 3 // 3 arguments
+        return splitArgs.length == 4 // 4 arguments
                 && !splitArgs[0].isEmpty() // non-empty arguments
                 && !splitArgs[1].isEmpty()
-                && !splitArgs[2].isEmpty();
+                && !splitArgs[2].isEmpty()
+                && !splitArgs[3].isEmpty();
     }
 
     /**
@@ -972,8 +984,9 @@ public class AddressBook {
     private static String extractNameFromPersonString(String encoded) {
         final int indexOfPhonePrefix = encoded.indexOf(PERSON_DATA_PREFIX_PHONE);
         final int indexOfEmailPrefix = encoded.indexOf(PERSON_DATA_PREFIX_EMAIL);
+        final int indexOfDOBPrefix = encoded.indexOf(PERSON_DATA_PREFIX_DOB);
         // name is leading substring up to first data prefix symbol
-        int indexOfFirstPrefix = Math.min(indexOfEmailPrefix, indexOfPhonePrefix);
+        int indexOfFirstPrefix = Math.min(Math.min(indexOfEmailPrefix, indexOfPhonePrefix), indexOfDOBPrefix);
         return encoded.substring(0, indexOfFirstPrefix).trim();
     }
 
@@ -986,16 +999,24 @@ public class AddressBook {
     private static String extractPhoneFromPersonString(String encoded) {
         final int indexOfPhonePrefix = encoded.indexOf(PERSON_DATA_PREFIX_PHONE);
         final int indexOfEmailPrefix = encoded.indexOf(PERSON_DATA_PREFIX_EMAIL);
+        final int indexOfDOBPrefix = encoded.indexOf(PERSON_DATA_PREFIX_DOB);
+        int indexOfNextPrefix;
 
         // phone is last arg, target is from prefix to end of string
-        if (indexOfPhonePrefix > indexOfEmailPrefix) {
+        if (indexOfPhonePrefix > indexOfEmailPrefix && indexOfPhonePrefix > indexOfDOBPrefix) {
             return removePrefixSign(encoded.substring(indexOfPhonePrefix, encoded.length()).trim(),
                     PERSON_DATA_PREFIX_PHONE);
 
         // phone is middle arg, target is from own prefix to next prefix
-        } else {
+        } else if (indexOfPhonePrefix < indexOfEmailPrefix && indexOfPhonePrefix < indexOfDOBPrefix){
+            indexOfNextPrefix = Math.min(indexOfEmailPrefix, indexOfDOBPrefix);
             return removePrefixSign(
-                    encoded.substring(indexOfPhonePrefix, indexOfEmailPrefix).trim(),
+                    encoded.substring(indexOfPhonePrefix, indexOfNextPrefix).trim(),
+                    PERSON_DATA_PREFIX_PHONE);
+        } else {
+            indexOfNextPrefix = Math.max(indexOfEmailPrefix, indexOfDOBPrefix);
+            return removePrefixSign(
+                    encoded.substring(indexOfPhonePrefix, indexOfNextPrefix).trim(),
                     PERSON_DATA_PREFIX_PHONE);
         }
     }
@@ -1009,17 +1030,56 @@ public class AddressBook {
     private static String extractEmailFromPersonString(String encoded) {
         final int indexOfPhonePrefix = encoded.indexOf(PERSON_DATA_PREFIX_PHONE);
         final int indexOfEmailPrefix = encoded.indexOf(PERSON_DATA_PREFIX_EMAIL);
+        final int indexOfDOBPrefix = encoded.indexOf(PERSON_DATA_PREFIX_DOB);
+        int indexOfNextPrefix;
 
         // email is last arg, target is from prefix to end of string
-        if (indexOfEmailPrefix > indexOfPhonePrefix) {
+        if (indexOfEmailPrefix > indexOfPhonePrefix && indexOfEmailPrefix > indexOfDOBPrefix) {
             return removePrefixSign(encoded.substring(indexOfEmailPrefix, encoded.length()).trim(),
                     PERSON_DATA_PREFIX_EMAIL);
 
         // email is middle arg, target is from own prefix to next prefix
-        } else {
+        } else if (indexOfEmailPrefix < indexOfPhonePrefix && indexOfEmailPrefix < indexOfDOBPrefix){
+            indexOfNextPrefix = Math.min(indexOfPhonePrefix, indexOfDOBPrefix);
             return removePrefixSign(
-                    encoded.substring(indexOfEmailPrefix, indexOfPhonePrefix).trim(),
+                    encoded.substring(indexOfEmailPrefix, indexOfNextPrefix).trim(),
+                    PERSON_DATA_PREFIX_PHONE);
+        } else {
+            indexOfNextPrefix = Math.max(indexOfPhonePrefix, indexOfDOBPrefix);
+            return removePrefixSign(
+                    encoded.substring(indexOfEmailPrefix, indexOfNextPrefix).trim(),
                     PERSON_DATA_PREFIX_EMAIL);
+        }
+    }
+
+    /**
+     * Extracts substring representing date of birth from person string representation
+     *
+     * @param encoded person string representation
+     * @return dob argument WITHOUT prefix
+     */
+    private static String extractDOBFromPersonString(String encoded) {
+        final int indexOfPhonePrefix = encoded.indexOf(PERSON_DATA_PREFIX_PHONE);
+        final int indexOfEmailPrefix = encoded.indexOf(PERSON_DATA_PREFIX_EMAIL);
+        final int indexOfDOBPrefix = encoded.indexOf(PERSON_DATA_PREFIX_DOB);
+        int indexOfNextPrefix;
+
+        // DOB is last arg, target is from prefix to end of string
+        if (indexOfDOBPrefix > indexOfPhonePrefix && indexOfDOBPrefix > indexOfEmailPrefix) {
+            return removePrefixSign(encoded.substring(indexOfDOBPrefix, encoded.length()).trim(),
+                    PERSON_DATA_PREFIX_DOB);
+
+            // DOB is middle arg, target is from own prefix to next prefix
+        } else if (indexOfDOBPrefix < indexOfEmailPrefix && indexOfDOBPrefix < indexOfPhonePrefix){
+            indexOfNextPrefix = Math.min(indexOfEmailPrefix, indexOfPhonePrefix);
+            return removePrefixSign(
+                    encoded.substring(indexOfDOBPrefix, indexOfNextPrefix).trim(),
+                    PERSON_DATA_PREFIX_PHONE);
+        } else {
+            indexOfNextPrefix = Math.max(indexOfEmailPrefix, indexOfPhonePrefix);
+            return removePrefixSign(
+                    encoded.substring(indexOfDOBPrefix, indexOfNextPrefix).trim(),
+                    PERSON_DATA_PREFIX_DOB);
         }
     }
 
@@ -1031,7 +1091,8 @@ public class AddressBook {
     private static boolean isPersonDataValid(String[] person) {
         return isPersonNameValid(person[PERSON_DATA_INDEX_NAME])
                 && isPersonPhoneValid(person[PERSON_DATA_INDEX_PHONE])
-                && isPersonEmailValid(person[PERSON_DATA_INDEX_EMAIL]);
+                && isPersonEmailValid(person[PERSON_DATA_INDEX_EMAIL])
+                && isPersonDOBValid(person[PERSON_DATA_INDEX_DOB]);
     }
 
     /*
@@ -1070,6 +1131,17 @@ public class AddressBook {
      */
     private static boolean isPersonEmailValid(String email) {
         return email.matches("\\S+@\\S+\\.\\S+"); // email is [non-whitespace]@[non-whitespace].[non-whitespace]
+        //TODO: implement a more permissive validation
+    }
+
+    /**
+     * Returns true if the given string is a legal birthdate
+     *
+     * @param dob to be validated
+     * @return whether arg is a valid person email
+     */
+    private static boolean isPersonDOBValid(String dob) {
+        return dob.matches("\\d+"); // dob nonempty sequence of digits
         //TODO: implement a more permissive validation
     }
 
