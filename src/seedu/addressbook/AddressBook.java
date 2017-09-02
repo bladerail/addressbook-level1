@@ -1184,8 +1184,7 @@ public class AddressBook {
     private static String getUsageInfoForAllCommands() {
         return getUsageInfoForAddCommand() + LS
                 + getUsageInfoForFindCommand() + LS
-                + getUsageInfoForListCommand() + LS
-                + getUsageInfoForSortCommand() + LS
+                + getUsageInfoForViewCommand() + LS
                 + getUsageInfoForDeleteCommand() + LS
                 + getUsageInfoForClearCommand() + LS
                 + getUsageInfoForExitCommand() + LS
@@ -1228,19 +1227,11 @@ public class AddressBook {
     }
 
     /**
-     * Returns the string for showing 'list' command usage instruction
+     * Returns the string for showing 'view' command usage instruction
      */
-    private static String getUsageInfoForListCommand() {
+    private static String getUsageInfoForViewCommand() {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_LIST_WORD, COMMAND_LIST_DESC) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_LIST_EXAMPLE) + LS;
-    }
-
-    /**
-     * Returns the string for showing 'sort' command usage instruction
-     */
-    private static String getUsageInfoForSortCommand() {
-        return String.format(MESSAGE_COMMAND_HELP, COMMAND_SORT_WORD, COMMAND_SORT_DESC) + LS
-                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_SORT_EXAMPLE) + LS;
     }
 
     /**
