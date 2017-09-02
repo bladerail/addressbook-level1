@@ -595,9 +595,13 @@ public class AddressBook {
      * @return feedback display message for the operation result
      */
     private static String executeSortAllPersonsInAddressBook() {
-        ArrayList<String[]> toBeDisplayed = getAllPersonsInAddressBook();
+        ArrayList<String[]> toBeDisplayed = sort(getAllPersonsInAddressBook());
         showToUser(toBeDisplayed);
         return getMessageForPersonsDisplayedSummary(toBeDisplayed);
+    }
+
+    private static ArrayList<String[]> sort(ArrayList<String[]> allPersons) {
+        return allPersons;
     }
 
     /**
