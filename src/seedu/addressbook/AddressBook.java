@@ -1007,12 +1007,14 @@ public class AddressBook {
             return removePrefixSign(encoded.substring(indexOfPhonePrefix, encoded.length()).trim(),
                     PERSON_DATA_PREFIX_PHONE);
 
-        // phone is middle arg, target is from own prefix to next prefix
+        // phone is smallest arg, target is from own prefix to next smallest prefix
         } else if (indexOfPhonePrefix < indexOfEmailPrefix && indexOfPhonePrefix < indexOfDOBPrefix){
             indexOfNextPrefix = Math.min(indexOfEmailPrefix, indexOfDOBPrefix);
             return removePrefixSign(
                     encoded.substring(indexOfPhonePrefix, indexOfNextPrefix).trim(),
                     PERSON_DATA_PREFIX_PHONE);
+
+        // phone is middle arg, target is from own prefix to next prefix
         } else {
             indexOfNextPrefix = Math.max(indexOfEmailPrefix, indexOfDOBPrefix);
             return removePrefixSign(
@@ -1038,12 +1040,14 @@ public class AddressBook {
             return removePrefixSign(encoded.substring(indexOfEmailPrefix, encoded.length()).trim(),
                     PERSON_DATA_PREFIX_EMAIL);
 
-        // email is middle arg, target is from own prefix to next prefix
+        // email is smallest arg, target is from own prefix to next smallest prefix
         } else if (indexOfEmailPrefix < indexOfPhonePrefix && indexOfEmailPrefix < indexOfDOBPrefix){
             indexOfNextPrefix = Math.min(indexOfPhonePrefix, indexOfDOBPrefix);
             return removePrefixSign(
                     encoded.substring(indexOfEmailPrefix, indexOfNextPrefix).trim(),
-                    PERSON_DATA_PREFIX_PHONE);
+                    PERSON_DATA_PREFIX_EMAIL);
+
+        // email is middle arg, target is from own prefix to next prefix
         } else {
             indexOfNextPrefix = Math.max(indexOfPhonePrefix, indexOfDOBPrefix);
             return removePrefixSign(
@@ -1069,12 +1073,14 @@ public class AddressBook {
             return removePrefixSign(encoded.substring(indexOfDOBPrefix, encoded.length()).trim(),
                     PERSON_DATA_PREFIX_DOB);
 
-            // DOB is middle arg, target is from own prefix to next prefix
+            // DOB is smallest arg, target is from own prefix to next smallest prefix
         } else if (indexOfDOBPrefix < indexOfEmailPrefix && indexOfDOBPrefix < indexOfPhonePrefix){
             indexOfNextPrefix = Math.min(indexOfEmailPrefix, indexOfPhonePrefix);
             return removePrefixSign(
                     encoded.substring(indexOfDOBPrefix, indexOfNextPrefix).trim(),
-                    PERSON_DATA_PREFIX_PHONE);
+                    PERSON_DATA_PREFIX_DOB);
+
+            // DOB is middle arg, target is from own prefix to next prefix
         } else {
             indexOfNextPrefix = Math.max(indexOfEmailPrefix, indexOfPhonePrefix);
             return removePrefixSign(
